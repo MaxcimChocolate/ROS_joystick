@@ -3,27 +3,40 @@
 #include <sensor_msgs/Joy.h>
 
 import rospy 
-from std_msgs.msg import String 
+from sensor_msgs.msg import Joy 
+from std_msgs.msg import String
+
 
 
 def callback(data):
-	rospy.loginfo(rospy.get_caller_id() + "this is %," data.data)
+	msg = String()
 
-def talker():
+	x0 = float(data.axes[1])
+	y0 = float(data.axes[0])
+
+	x = 50*x0+50
+	y = 50*y0+50
+
+	pub.publish(str(x))
+	pub.publish(str(y))
+	
+
+	
+
+def start():
+	
+	global pub
+	
+
+	pub = rospy.Publisher("joystick_reader", String ,queue_size=10)
+	#subscribed to joystick input on topic Joy
+
+	rospy.Subscriber('/joy', Joy, callback)
 
 	rospy.init_node('joystick_reader')
-	publisher = rospy.Publisher("/joystick_data", String, queue_size=10)
 	
-	subscriber = rospy.Subscriber('/joy_node_data', String, callback)
-
 	rate = rospy.Rate(10)
-	
-	while not rospy.is_shutdown():
-	
-		publisher.publish(subscriber)
-
-		rate.sleep()
-	rospy.spin
+	rospy.spin()
 
 if __name__ == '__main__':
-	talker()
+	start()
